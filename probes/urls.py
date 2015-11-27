@@ -15,12 +15,16 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
+import table
 from web import views
 from django.views.generic import TemplateView
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^table/', include('table.urls')),
     url(r'^probe_data', views.probe_data, name='probe_handler'),
-    url(r'^index', TemplateView.as_view(template_name="base.html")),
-    url(r'^probe_table', views.probe_table, name='probe_table'),
+    url(r'^$', TemplateView.as_view(template_name="base.html"), name='overview'),
+    url(r'^probe_table', views.table, name='probe_table'),
+    url(r'^probe_graph', views.probe_graph, name='probe_graph'),
+    url(r'^table/data/$', views.ProbeDataView.as_view(), name='table_data'),
 ]

@@ -14,7 +14,9 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+PROJECT_ROOT = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), ".."),
+)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
@@ -37,7 +39,12 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'bootstrap3',
+    'djangobower',
+    'django_nvd3',
     'django_tables2',
+    'datetimewidget',
+    'table',
     'web',
 )
 
@@ -76,11 +83,29 @@ WSGI_APPLICATION = 'probes.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#    }
+#}
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django_mysqlpool.backends.mysqlpool',
+        'NAME': 'probes',
+        'USER': 'root',
+        'PASSWORD': 'my-secret-pw',
+        'HOST': '127.0.0.1',
+        'PORT': '',
+        'CONN_MAX_AGE': 600,
     }
+}
+
+MYSQLPOOL_BACKEND = 'QueuePool'
+MYSQLPOOL_ARGUMENTS = {
+    'use_threadlocal': False,
+    'pool_size' : 99,
 }
 
 
@@ -95,18 +120,30 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
+STATIC_ROOT = "/home/maurits/probes/static"
+
 STATIC_URL = '/static/'
+
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'djangobower.finders.BowerFinder',
+)
 
 TEMPLATE_DIRS = (
     os.path.join(BASE_DIR,  'templates'),
 )
 
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, "static"),
+BOWER_COMPONENTS_ROOT = '/home/maurits/probes/'
+
+BOWER_INSTALLED_APPS = (
+    'd3#3.3.13',
+    'nvd3#1.7.1',
 )
