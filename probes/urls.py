@@ -20,8 +20,11 @@ from web import views
 from django.views.generic import TemplateView
 
 urlpatterns = [
+#    url(r'^test', TemplateView.as_view(template_name="test.html")),
+    url("", include('django_socketio.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^table/', include('table.urls')),
+    url(r'^get_data', views.get_data, name='get_data'),
     url(r'^probe_data', views.probe_data, name='probe_handler'),
     url(r'^$', TemplateView.as_view(template_name="base.html"), name='overview'),
     url(r'^probe_table', views.table, name='probe_table'),

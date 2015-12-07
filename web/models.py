@@ -1,8 +1,11 @@
 from django.db import models
 from macaddress.fields import MACAddressField
 from django.core.validators import MinValueValidator, MaxValueValidator
-
-# Create your models here.
+from django.contrib.gis.db.models import PointField
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from trilateration import trilaterate
+from numpy import array
 
 
 class Probe(models.Model):
@@ -19,10 +22,67 @@ class Probe(models.Model):
         ('experiaboxv8', 'Experiabox V8'), 
         ('other', 'Other')))
 
+
     def __unicode__(self):
         return '%s | SA: %s | SS: %s | %sMhz | %s' % (self.time, self.source_address, self.signal_strength, self.frequency, self.router_id)
 
 
     class Meta:
-        unique_together = ["time", "source_address"]
+        unique_together = ["time", "source_address", "router_id"]
+
+
+class Location(models.Model):
+    time = models.DateTimeField(verbose_name='Timestamp')
+    source_address = MACAddressField(verbose_name='Source address', integer=False)
+    x = models.IntegerField(verbose_name='x-coordinate')
+    y = models.IntegerField(verbose_name='y-coordinate')
+    
+    def __unicode__(self):
+        return 'Time: %s | SA: %s | x: %s | y: %s' % (self.time, self.source_address, self.x, self.y)
+
+
+class DeviceInfo(models.Model):
+    identity = models.CharField(verbose_name='Identity', max_length=100)
+    mac_address = MACAddressField(verbose_name='Mac address', integer=False)
+
+
+    def __unicode__(self):
+        return 'Identity: %s | Mac address: %s' % (self.identity, self.mac_address)
+
+
+    class Meta:
+        unique_together = ["identity", "mac_address"]
+
+
+def rToD(rssi):
+    one_metre_rssi = 1
+    path_loss_constant = 2
+    distance = 10^((rssi + one_metre_rssi)/-20)
+    return distance
+
+
+#@receiver(post_save, sender=Probe)
+def calculate_location(sender, instance, **kwargs):
+    point_distance = trilaterate.point_data.copy() 
+    distance =  trilaterate.rssiToDistance(-77)
+    point_distance['710Nm'] = distance
+    qs = Probe.objects.filter(source_address=instance.source_address, time=instance.time)
+    if qs.count() > 1:
+        print '710Nm', -77, distance
+        for probe in qs:
+            distance = int(trilaterate.rssiToDistance(probe.signal_strength))
+            point_distance[probe.router_id] = distance
+            print probe.router_id, probe.signal_strength, distance 
+        
+        point_estimate = trilaterate.basicTrilateration.trilaterateLM(trilaterate.point_data, point_distance.values(), trilaterate.identifiers)
+        location = Location(
+            time = instance.time,
+            source_address = instance.source_address,
+            x = point_estimate.params['x'].value,
+            y = point_estimate.params['y'].value,
+            )
+        print location.x, location.y
+        location.save()
+
+
 
