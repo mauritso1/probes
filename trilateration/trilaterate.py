@@ -3,28 +3,31 @@ import sys
 from numpy import array
 import math
 
-
-def rssiToDistance(levelInDb, freqInMHz=5200):
-    result = (27.55 - (20 * math.log10(freqInMHz)) + math.fabs(levelInDb)) / 20.0
-    return math.pow(10, result)
-
-
 point_data = {
-    'a': array([0, 0, 1]),
-    'b': array([20, 30, 1]),
-    'c': array([20, 0, 65])
+    '710Nr': array([0, 20, 0]),
+    '710Nm': array([50, 0, 0]),
+    'HG655D': array([40, 30, 0])
      }
 
-distance_data = [6,4,6]
+
+#def rssiToDistance(levelInDb, freqInMHz=2460):
+#    result = (18 - (20 * math.log10(freqInMHz)) + math.fabs(levelInDb)) / 20.0
+#    return math.pow(10, result)
+
+def toDistance(rssi):
+    return 10**((rssi+55.0)/-20.0)
+
+
+distance_data = [10, 20, 40]
 
 identifiers = [
-    'a',
-    'b',
-    'c'
+    '710Nr',
+    '710Nm',
+    'HG655D'
     ]
 
 point_estimate = basicTrilateration.trilaterateLM(point_data,distance_data,identifiers)
 
-print "POINT ESTIMATE:"
+#print "POINT ESTIMATE:"
 print 'x: %s, y: %s, z: %s' % (point_estimate.params['x'].value, point_estimate.params['y'].value, point_estimate.params['z'].value)
-print rssiToDistance(float(sys.argv[1]))
+#print rssiToDistance(float(sys.argv[1]))
