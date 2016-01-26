@@ -1,12 +1,9 @@
 import os
-import gc
-import datetime
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "probes.settings")
 
-from web.models import DeviceSignalStrength
 from django_mysqlpool import auto_close_db
 from django.db.utils import IntegrityError
-from django.core.exceptions import ValidationError
 from web.models import *
 
 

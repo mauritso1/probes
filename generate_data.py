@@ -1,29 +1,16 @@
 import matplotlib as mpl
 mpl.use('Agg')
-import matplotlib.pyplot as plt
-import os
 import sys
-import math
-import time
-import django
-import netaddr
-from math import sqrt, log10
-from numpy import array
-from netaddr import EUI
+import random
 from web.models import *
-from web.trilateration import basicTrilateration
-from django.db.models import Count
-import matplotlib.patches as mpatches
-
 from collections import defaultdict
-from netaddr import EUI                         
-from netaddr.core import NotRegisteredError
+from netaddr import EUI
+from test_rssi import time_to_coords
+from database_queries import exclude_manufacturers
 
-from test_rssi import time_to_coords, filter_cisco
 
-
-def mac_coords_dict(qs):
-    qs = filter_cisco(qs, mac_address_key='mac_address')
+def mac_coords_dict(qs, day_list):
+    qs = exclude_manufacturers(qs, ['cisco'])
     days = {}
 
     for day in day_list:
@@ -37,8 +24,8 @@ def mac_coords_dict(qs):
                 identity = DeviceInfo.objects.filter(mac_address=EUI(mac))[0].identity.split('@')[0]
                 if not 'host' in identity:
                     mac_identity[EUI(mac)] = identity
-            except IndexError, e:
-                pass #print identity, e
+            except IndexError:
+                pass
         for obj in day_qs:
             coords = time_to_coords(obj.time)
             try:
@@ -52,53 +39,45 @@ def mac_coords_dict(qs):
     return days
 
 
+def main():
+    day_list = eval(sys.argv[1])
+    days_dict = mac_coords_dict(DeviceSignalStrength.objects.all(), day_list)
+    neural_dict_day = {}
 
-day_list = eval(sys.argv[1])
+    for day in days_dict:
+        neural_dict = defaultdict(list)
+        for mac in days_dict[day]:
+            for num in range(1, 73):
+                if num in days_dict[day][mac]:
+                    neural_dict[mac].append(1)
+                else:
+                    neural_dict[mac].append(0)
+        neural_dict_day[day] = neural_dict
+    role_list = []
 
-days_dict = mac_coords_dict(DeviceSignalStrength.objects.all())
-print "days_dict"
+    for neural_dict in neural_dict_day:
+        for identity in neural_dict_day[neural_dict]:
+            try:
+                if any(char.isdigit() for char in identity):
+                    role_list.append((0, neural_dict_day[neural_dict][identity]))
+                else:
+                    if not 'host' in identity:
+                        role_list.append((1, neural_dict_day[neural_dict][identity]))
+            except IndexError:
+                pass
+
+    print "role_list: ", len(role_list)
+
+    teacher_list = [a for a in role_list if a[0] == 1]
+    student_list = [a for a in role_list if a[0] == 0]
+
+    print len(teacher_list)
+    print len(student_list)
+
+    student_list = random.sample(student_list, len(teacher_list))
+
+    print len(student_list)
 
 
-neural_dict_day = {}
-for day in days_dict:
-    neural_dict = defaultdict(list)
-    for mac in days_dict[day]:
-        for num in range(1,73):
-            if num in days_dict[day][mac]:
-                neural_dict[mac].append(1)
-            else:
-                neural_dict[mac].append(0)
-    neural_dict_day[day] = neural_dict
-
-
-print "neural_dict_day"
-
-
-role_list = []
-for neural_dict in neural_dict_day:
-    for identity in neural_dict_day[neural_dict]:
-        try:
-            if any(char.isdigit() for char in identity):                    
-                role_list.append((0,neural_dict_day[neural_dict][identity]))
-            else:
-                if not 'host' in identity:
-                    role_list.append((1,neural_dict_day[neural_dict][identity]))
-        except IndexError, e:
-            pass #print identity, e
-
-
-print "role_list: ", len(role_list)
-
-from collections import Counter
-import random
-
-teacher_list = [a for a in role_list if a[0] == 1]
-student_list = [a for a in role_list if a[0] == 0]
-
-print len(teacher_list)
-print len(student_list)
-
-student_list = random.sample(student_list, len(teacher_list))
-
-print len(student_list)
-
+if __name__ == '__main__':
+    main()

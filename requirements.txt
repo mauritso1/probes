@@ -1,0 +1,7 @@
+netaddr
+pybrain
+scipy
+numpy
+pylab
+matplotlib
+django

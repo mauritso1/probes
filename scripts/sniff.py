@@ -1,5 +1,5 @@
 from scapy.all import *
-import airoiv.scapy_ex
+
 
 def print_info(packet):
     if packet.haslayer(Dot11ProbeReq) and packet.info is not '':

@@ -1,14 +1,8 @@
 import os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "probes.settings")
-from collections import defaultdict
 import sys
-import time
 import datetime
-import Queue
-import threading
 from django.db.utils import IntegrityError
-from django.core.exceptions import ValidationError
-from multiprocessing import Process
 from web.models import Probe
 from django_mysqlpool import auto_close_db
 

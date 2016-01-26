@@ -1,18 +1,6 @@
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
-import os
-import sys
-import math
-import time
-import django
-import netaddr
-from math import sqrt, log10
-from numpy import array
-from netaddr import EUI
-from web.models import *
-from web.trilateration import basicTrilateration
-from django.db.models import Count
 import matplotlib.patches as mpatches
 
 from pybrain.datasets            import ClassificationDataSet
@@ -20,11 +8,6 @@ from pybrain.utilities           import percentError
 from pybrain.tools.shortcuts     import buildNetwork
 from pybrain.supervised.trainers import BackpropTrainer
 from pybrain.structure.modules   import SoftmaxLayer
-from pybrain.tools.validation import CrossValidator
-from pylab import ion, ioff, figure, draw, contourf, clf, show, hold, plot
-from scipy import diag, arange, meshgrid, where
-from numpy.random import multivariate_normal
-from random import shuffle
 
 path='/srv/media/temp.png'
 

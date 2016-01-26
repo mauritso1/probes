@@ -1,10 +1,11 @@
 import sys
+
 from django.db.utils import IntegrityError, DataError
-from django.core.exceptions import ValidationError
-from multiprocessing import Process
+from netaddr import EUI
+
 from web.models import DeviceInfo
 from django_mysqlpool import auto_close_db
-from netaddr import EUI
+
 
 mac_username_dict = {}
 device_info_list = []
