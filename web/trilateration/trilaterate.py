@@ -17,14 +17,14 @@ identifiers = [
     '710Nm'
     ]
 
-distance_data = [170, 150, 170]
+
+def rssi_to_distance(rssi): 
+    return 10**((rssi + 55.0)/-20.0)
 
 
-def rssiToDistance(levelInDb, freqInMHz=2460):
-    result = (27.55 - (20 * math.log10(freqInMHz)) + math.fabs(levelInDb)) / 25.0
-    return math.pow(10, result)
+def trilaterate_rssi(rssi_dict):
+    distance_data = [rssi_to_distance(rssi_dict[router_id]) for router_id in identifiers]
+    point_estimate = basicTrilateration.trilaterate(point_data, distance_data, identifiers)
+    return point_estimate[0], point_estimate[1]
 
 
-#print "POINT ESTIMATE:"
-#print 'x: %s, y: %s, z: %s' % (point_estimate.params['x'].value, point_estimate.params['y'].value, point_estimate.params['z'].value)
-#print rssiToDistance(float(sys.argv[1]))

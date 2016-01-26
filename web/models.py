@@ -1,7 +1,6 @@
 from django.db import models
 from macaddress.fields import MACAddressField
 from django.core.validators import MinValueValidator, MaxValueValidator
-from django.contrib.gis.db.models import PointField
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from trilateration import trilaterate
@@ -24,11 +23,13 @@ class Probe(models.Model):
 
 
     def __unicode__(self):
-        return '%s | SA: %s | SS: %s | %sMhz | %s' % (self.time, self.source_address, self.signal_strength, self.frequency, self.router_id)
+        return '%s | SA: %s | Signal strength: %s | %s' % (self.time, self.source_address, self.signal_strength, self.router_id)
 
 
     class Meta:
         unique_together = ["time", "source_address", "router_id"]
+
+
 
 
 class Location(models.Model):
@@ -39,6 +40,21 @@ class Location(models.Model):
     
     def __unicode__(self):
         return 'Time: %s | SA: %s | x: %s | y: %s' % (self.time, self.source_address, self.x, self.y)
+
+
+class DeviceSignalStrength(models.Model):
+    time = models.DateTimeField(verbose_name='Timestamp')
+    mac_address = MACAddressField(verbose_name='Mac address', integer=False)
+    signal_strength_hg655d = models.IntegerField(verbose_name='Signal strength', validators=[MinValueValidator(-100), MaxValueValidator(0)]) 
+    signal_strength_710nr = models.IntegerField(verbose_name='Signal strength', validators=[MinValueValidator(-100), MaxValueValidator(0)])
+    signal_strength_710nm = models.IntegerField(verbose_name='Signal strength', validators=[MinValueValidator(-100), MaxValueValidator(0)])
+
+    def __unicode__(self):
+        return 'Time: %s | Mac address: %s | Signal strength (HG655D, 710Nr, 710Nm): (%s, %s, %s) ' % (self.time, self.mac_address, self.signal_strength_hg655d, self.signal_strength_710nr, self.signal_strength_710nm)
+
+    class Meta:
+        unique_together = ["time", "mac_address"]
+
 
 
 class DeviceInfo(models.Model):

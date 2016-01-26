@@ -32,16 +32,30 @@ line_dict = {
 @auto_close_db
 def save_probes(probe_list):
     try:
-    #    Probe.objects.bulk_create(probe_list)
-        for probe in probe_list:
-            probe.save()
-        return True
+        Probe.objects.bulk_create(probe_list)
     except (IntegrityError), e:
         print e
-        return False
+        save_probes_singles(probe_list)
+    return True
 
 
-for line in sys.stdin:
+def save_probes_singles(probe_list):
+    try:
+        probe_list[-1].save()
+    except (IntegrityError), e:
+        print "last", e
+        return
+    for probe in probe_list:
+        try:
+            probe.save()
+        except (IntegrityError), e:
+            print e
+    return True
+
+
+line = sys.stdin.readline()
+while line:
+    line = sys.stdin.readline()
     lines = line.split()
     probe_dict = {}
     try:
@@ -64,20 +78,28 @@ for line in sys.stdin:
                     else:
                         if len(third_dict) != 0:
                             for key, value in third_dict.iteritems():
-                                timestamp = datetime.datetime.strptime(probe_dict['date'] + ' ' + current_time, "%Y-%m-%d %H:%M:%S")
+                                try:
+                                    timestamp = datetime.datetime.strptime(probe_dict['date'] + ' ' + current_time, "%Y-%m-%d %H:%M:%S")
+                                except ValueError:
+                                    print "Value error"
+                                    continue
 #                                print probe_dict['bssid'][-17:], probe_dict['sa'][-17:], timestamp, sum(value)/len(value), probe_dict['freq'], router_id
                                 if len(value['rssi_list']) != 0:
-                                    probe = Probe(
-                                        time = timestamp,
-                                        BSSID = value['bssid'][-17:],
-                                        source_address = key[-17:],
-                                        signal_strength = sum(value['rssi_list'])/len(value['rssi_list']),
-                                        frequency = value['freq'],
-                                        router_id = router_id
-                                    )
-                                    probe_list.append(probe)
+                                    try:
+                                        probe = Probe(
+                                            time = timestamp,
+                                            BSSID = value['bssid'][-17:],
+                                            source_address = key[-17:],
+                                            signal_strength = sum(value['rssi_list'])/len(value['rssi_list']),
+                                            frequency = value['freq'],
+                                            router_id = router_id
+                                        )
+                                    except ValueError:
+                                        print "Valueerror"
+                                    else:
+                                        probe_list.append(probe)
                                 else: print "WOAH"
-                        if len(probe_list) >= 1000:
+                        if len(probe_list) >= 100:
                             success = save_probes(probe_list)
                             print success
                             probe_list = []

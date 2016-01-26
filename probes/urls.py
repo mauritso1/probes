@@ -18,16 +18,19 @@ from django.contrib import admin
 import table
 from web import views
 from django.views.generic import TemplateView
+from django.contrib.auth.decorators import login_required
+
 
 urlpatterns = [
 #    url(r'^test', TemplateView.as_view(template_name="test.html")),
     url("", include('django_socketio.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^table/', include('table.urls')),
-    url(r'^get_data', views.get_data, name='get_data'),
-    url(r'^probe_data', views.probe_data, name='probe_handler'),
-    url(r'^$', TemplateView.as_view(template_name="base.html"), name='overview'),
-    url(r'^probe_table', views.table, name='probe_table'),
-    url(r'^probe_graph', views.probe_graph, name='probe_graph'),
-    url(r'^table/data/$', views.ProbeDataView.as_view(), name='table_data'),
+    url(r'^get_data', login_required(views.get_data), name='get_data'),
+    url(r'^probe_data', login_required(views.probe_data), name='probe_handler'),
+    url(r'^$', login_required(TemplateView.as_view(template_name="base.html")), name='overview'),
+    url(r'^probe_table', login_required(views.table), name='probe_table'),
+    url(r'^location_plot', login_required(views.location_plot), name='location_plot'),
+    url(r'^probe_graph', login_required(views.probe_graph), name='probe_graph'),
+    url(r'^table/data/$', login_required(views.ProbeDataView.as_view()), name='table_data'),
 ]

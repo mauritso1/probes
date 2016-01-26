@@ -7,7 +7,10 @@
 <script type="text/javascript" src='{% static 'nvd3/build/nv.d3.min.js' %}'></script>
 <button id="get_data" class="btn btn-mini btn-primary" type="button">Get data</button>
 {% load nvd3_tags %}
-{% load_chart charttype chartdata chartcontainer extra %}
-{% include_container "linechart_container" 600 1000%}
+
+ {% load_chart charttype chartdata "chartcontainer" %}
+    {% include_container "scatterchart_container" 400 600 %}
 
 {% endblock %}
+
+{% load static %}

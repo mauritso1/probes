@@ -26,8 +26,7 @@ SECRET_KEY = 'nl35+3+=+%ued_4u_v8$gygcd!)(x&e7h4irvtrrzs$^al51pi'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['192.168.0.3', 'initiative.asuscomm.com']
 
 
 # Application definition
@@ -43,7 +42,6 @@ INSTALLED_APPS = (
     'django_socketio',
     'bootstrap3',
     'djangobower',
-    'nvd3',
     'django_nvd3',
     'django_tables2',
     'datetimewidget',
