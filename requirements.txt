@@ -5,3 +5,12 @@ numpy
 pylab
 matplotlib
 django
+django-socketio
+django-bootstrap3
+django-bower
+django-nvd3
+django-tables2
+django-datetime-widget
+django-datatable
+django-macaddress
+lmfit

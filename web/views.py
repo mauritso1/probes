@@ -1,17 +1,17 @@
-from django.shortcuts import render, render_to_response
-from django.http import HttpResponse
-from django_tables2   import RequestConfig
-from web.tables import test
-from web.models import Probe, Location
-from web.forms import ProbeSearchForm
-from eztables.views import DatatablesView
-from table.views import FeedDataView
 import json
 import time
 import datetime
 import random
+
+from django.shortcuts import render, render_to_response
+from django.http import HttpResponse
+from table.views import FeedDataView
 from netaddr import EUI
 from netaddr.core import NotRegisteredError
+
+from web.tables import test
+from web.models import Probe, Location
+
 
 # Create your views here.
 cisco_macs = [u'F0-25-72-CA-E4-70', u'F0-25-72-71-78-C0', u'F0-25-72-71-78-C1', u'F0-25-72-CA-F3-B1', u'08-17-35-31-0A-31', u'08-17-35-31-4E-70', u'08-17-35-31-4E-71', u'08-17-35-31-15-E1', u'08-17-35-31-15-E0', u'08-17-35-31-1C-80', u'08-17-35-31-1C-81', u'08-17-35-31-27-91', u'08-17-35-31-38-D1', u'08-17-35-31-38-D0', u'F0-25-72-CA-FE-30', u'F0-25-72-CA-F2-A0', u'F0-25-72-DB-FE-31', u'08-17-35-31-50-20', u'F0-25-72-71-7B-A1', u'F0-25-72-CB-2F-A0', u'F0-25-72-CA-F2-A1', u'08-17-35-31-2F-10', u'F0-25-72-CA-FF-91', u'F0-25-72-CA-FF-90', u'F0-25-72-71-7B-10', u'F0-25-72-CB-2E-C0', u'08-17-35-31-36-30', u'F0-25-72-CA-FD-51', u'08-17-35-31-2D-D0', u'08-17-35-31-2D-D1', u'F0-25-72-CB-2E-C1', u'08-17-35-31-1B-90', u'F0-25-72-CB-2F-A1', u'F0-25-72-CA-F3-71', u'00-02-6F-FA-A2-50', u'00-02-6F-FA-A2-4C', u'00-02-6F-FA-A2-48']
