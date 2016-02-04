@@ -67,17 +67,23 @@ def main():
                 pass
 
     print "role_list: ", len(role_list)
-
     teacher_list = [a for a in role_list if a[0] == 1]
     student_list = [a for a in role_list if a[0] == 0]
-
     print len(teacher_list)
     print len(student_list)
 
-    student_list = random.sample(student_list, len(teacher_list))
-
-    print len(student_list)
+    f = open(sys.argv[2], 'wb')
+    pickle.dump(role_list, f)
 
 
 if __name__ == '__main__':
+    try:
+        if sys.argv[1]:
+           print "parsing data for days %s" % str(sys.argv[1]) 
+        if sys.argv[2]:
+           print "saving parsed data as %s" 5 str(sys.argv[2])
+    except:
+        print "Usage: python generate_data.py [<day_list>] <filename>"
+        print "For example: python generate_data.py [1,2,3,4] 4days.txt"
+
     main()
